@@ -12,18 +12,40 @@ function getPostcode(promptString) {
 
     fetch(`https://api.postcodes.io/postcodes/${postcode}`)
     .then(extractJsonFromResponse)
-    .then(getBusStops)
+    .then(getBusStops, error)
+    .catch(error)
 
+}
+
+function error(){
+    promptUser("Incorrect postcode, please try again")
+    getPostcode(promptString)
+}
+
+function getBuses(busNumbers) {
+    for (let i = 0; i < busNumbers.length; i++) {
+        let stopNumber = busNumbers[i][0]
+
+    fetch(`https://api.tfl.gov.uk/StopPoint/${stopNumber}/Arrivals?app_key=697968f7487e4271b29e648c72016a69`)
+    .then(extractJsonFromResponse)
+    .then(nextFiveBuses);   
+    }
+}
+
+function sortBusArray(busArr) {
+    return busArr.sort((a, b) => a.timeToStation - b.timeToStation)
 }
 
 function nextFiveBuses(busArr) {
-    busArr.sort(function (a, b) {
-        return a.timeToStation - b.timeToStation
-    });
-    for (i = 0; i < 5; i++) {
-        console.log("The next bus is the number " + busArr[i].lineId + " arriving in " + busArr[i].timeToStation + "seconds")
+    const sortedbusArr = sortBusArray(busArr)
+    console.log(`\nThe next bus to arrive at ${sortedbusArr[0].stationName} will be`)
+    for (const bus in busArr) {       
+        if ([bus] < 5)
+        console.log(
+            `Bus ${sortedbusArr[bus].lineId} going to ${sortedbusArr[bus].destinationName} is due in ${Math.ceil(sortedbusArr[bus].timeToStation / 60)} minutes`)
     }
 }
+
 
 function sortBusArray(busArr) {
     return busArr.sort((a, b) => a.timeToStation - b.timeToStation)
@@ -52,13 +74,13 @@ function getStopID(busStopInfo){
     const numOfBusStops = 2
     const busNumbers = []
     for(i=0; i<numOfBusStops; i++){
-       const busArr = []
-        busArr.push(busStopInfo.stopPoints[i].id)
-        busArr.push(busStopInfo.stopPoints[i].commonName) 
-        busNumbers.push(busArr)
+       const busStopArr = []
+        busStopArr.push(busStopInfo.stopPoints[i].id)
+        busStopArr.push(busStopInfo.stopPoints[i].commonName) 
+        busNumbers.push(busStopArr)
     }
     
-console.log(busNumbers)
+return getBuses(busNumbers)
 
 }
 

@@ -10,8 +10,7 @@ function printInfoAboutBuses(busArr) {
 
     console.log('Buses Due:') 
 
-    for (const bus in sortedbusArr) {
-        
+    for (const bus in sortedbusArr) {       
         if ([bus] < 5)
         console.log(
             `Bus ${sortedbusArr[bus].lineId} is due in ${Math.ceil(sortedbusArr[bus].timeToStation / 60)} minutes`)

@@ -16,34 +16,66 @@ function getPostcode(promptString) {
 
 }
 
+function getBuses(busNumbers) {
+    for (let i = 0; i < busNumbers.length; i++) { 
+        let stopNumber = busNumbers[i][0]
+
+    fetch(`https://api.tfl.gov.uk/StopPoint/${stopNumber}/Arrivals?app_key=697968f7487e4271b29e648c72016a69`)
+    .then(extractJsonFromResponse)
+    .then(nextFiveBuses)
+    } 
+}
+
+function sortBusArray(busArr) {
+    return busArr.sort((a, b) => a.timeToStation - b.timeToStation)
+}
+
 function nextFiveBuses(busArr) {
-    busArr.sort(function (a, b) {
-        return a.timeToStation - b.timeToStation
-    });
-    for (i = 0; i < 5; i++) {
-        console.log("The next bus is the number " + busArr[i].lineId + " arriving in " + busArr[i].timeToStation + "seconds")
+    const sortedbusArr = sortBusArray(busArr)
+    console.log(`\nBuses at ${sortedbusArr[0].stationName}:`)
+    for (const bus in busArr) { 
+        if ([bus] < 5)
+        console.log(
+            `Bus ${sortedbusArr[bus].lineId} is due in ${Math.ceil(sortedbusArr[bus].timeToStation / 60)} minutes`)
     }
 }
+
 
 function sortBusArray(busArr) {
     return busArr.sort((a, b) => a.timeToStation - b.timeToStation)
 
 }
+function extractLongitude(postcodeInfo) {
+    longitude = postcodeInfo.result.longitude
+    return longitude;
+}
+
+function extractLatitude(postcodeInfo) {
+    latitude = postcodeInfo.result.latitude
+    return latitude;
+}
 
 function getBusStops(postcodeInfo) {
-    const latitude = postcodeInfo.result.latitude
-    const longitude = postcodeInfo.result.longitude
+    const latitude = extractLatitude(postcodeInfo);
+    const longitude = extractLongitude(postcodeInfo);
 
     fetch(`https://api.tfl.gov.uk/StopPoint?stopTypes=NaptanPublicBusCoachTram&lat=${latitude}&lon=${longitude}&modes=bus`)
         .then(extractJsonFromResponse)
-        .then(printBusStopInfo)
-
+        .then(getStopID)
 }
 
-function printBusStopInfo(busStopInfo){
+function getStopID(busStopInfo){
     const numOfBusStops = 2
-    const busNumber = 
-    console.log(busStopInfo)
+    const busNumbers = []
+    for(i=0; i<numOfBusStops; i++){
+       const busStopArr = []
+        busStopArr.push(busStopInfo.stopPoints[i].id)
+        busStopArr.push(busStopInfo.stopPoints[i].commonName) 
+        busNumbers.push(busStopArr)
+    }
+    
+return getBuses(busNumbers)
+
 }
 
 function extractJsonFromResponse(response) {
