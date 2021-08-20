@@ -29,37 +29,21 @@ function sortBusArray(busArr) {
     return busArr.sort((a, b) => a.timeToStation - b.timeToStation)
 
 }
-function extractLongitude(postcodeInfo) {
-    longitude = postcodeInfo.result.longitude
-    return longitude;
-}
-
-function extractLatitude(postcodeInfo) {
-    latitude = postcodeInfo.result.latitude
-    return latitude;
-}
 
 function getBusStops(postcodeInfo) {
-    const latitude = extractLatitude(postcodeInfo);
-    const longitude = extractLongitude(postcodeInfo);
+    const latitude = postcodeInfo.result.latitude
+    const longitude = postcodeInfo.result.longitude
 
     fetch(`https://api.tfl.gov.uk/StopPoint?stopTypes=NaptanPublicBusCoachTram&lat=${latitude}&lon=${longitude}&modes=bus`)
         .then(extractJsonFromResponse)
-        .then(getStopID)
+        .then(printBusStopInfo)
+
 }
 
-function getStopID(busStopInfo){
+function printBusStopInfo(busStopInfo){
     const numOfBusStops = 2
-    const busNumbers = []
-    for(i=0; i<numOfBusStops; i++){
-       const busArr = []
-        busArr.push(busStopInfo.stopPoints[i].id)
-        busArr.push(busStopInfo.stopPoints[i].commonName) 
-        busNumbers.push(busArr)
-    }
-    
-console.log(busNumbers)
-
+    const busNumber = 
+    console.log(busStopInfo)
 }
 
 function extractJsonFromResponse(response) {
